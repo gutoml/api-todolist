@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -21,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'photo_directory'
     ];
 
     /**
@@ -42,4 +44,20 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function positions(): BelongsToMany
+    {
+        return $this->belongsToMany(Position::class);
+    }
+
+    public function updatePosition($positionId)
+    {
+        if ($this->positions()->exists()) {
+            $this->positions()->updateExistingPivot(1, ['position_id' => $positionId]);
+        } else {
+            $this->positions()->attach($positionId);
+        }
+
+        return $this;
+    }
 }
